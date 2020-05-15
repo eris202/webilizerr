@@ -3,7 +3,6 @@ import { mongoURI } from '../config/keys'
 import MongoDbSessionConnector from 'connect-mongodb-session'
 import expressSession from 'express-session'
 import mongoose from 'mongoose'
-import cookieParser from 'cookie-parser'
 
 // DB configs
 export default class DbLoader {
@@ -22,7 +21,6 @@ export default class DbLoader {
             collection: "mySessions",
         })
 
-        app.use(cookieParser())
         app.use(
             expressSession({
                 secret: "secret",

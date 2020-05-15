@@ -5,23 +5,21 @@ import {Container} from 'typedi'
 const reportController = Container.get(ReportController)
 const authController = Container.get(AuthController)
 
-const alreadyLoggedInMiddleWare = (req, res, next) => {
-    if (!req.isAuthenticated()) {
+const authMiddleWare = (req, res, next) => {
+    if (req.isAuthenticated()) {
         return next();
     }
 
-    req.flash('message', 'You cannot access the page while logged in.')
-    res.redirect("/")
+    res.redirect("/index")
 }
 
 export interface RouteMapper {
     [key: string]: RouteDefinition[]
 }
 
-export class RouteDefinition {
-    method: 'post' | 'get' | 'put' | 'delete'
+export interface RouteDefinition {
+    method: 'post' | 'get' | 'put' | 'delete',
     handler: (req, res, next?) => void
-    middleWares?: Array<(req, res, next) => void> = [] 
 }
 
 /*
@@ -44,7 +42,27 @@ export const routes: RouteMapper[] = [
         ]
     },
     {
-        '/forgot-password': [
+        '/report/:reportId': [
+            {
+                method: 'get',
+                handler: reportController.renderReportPage
+            }
+        ]
+    },
+    {
+        '/login': [
+            {
+                method: 'get',
+                handler: authController.viewLoginPage
+            },
+            {
+                method: 'post',
+                handler: authController.postLogin
+            }
+        ]
+    },
+    {
+        '/forgotpassword': [
             {
                 method: 'get',
                 handler: authController.viewForgotPasswordPage
@@ -56,92 +74,14 @@ export const routes: RouteMapper[] = [
         ]
     },
     {
-        '/reset-password': [
-            {
-                method: 'get',
-                handler: authController.viewResetPassword
-            },
-            {
-                method: 'post',
-                handler: authController.postResetPassword
-            }
-        ]
-    },
-    {
-        '/auth/verify': [
-            {
-                method: 'get',
-                handler: authController.verifyUserLink,
-            }
-        ]
-    },
-    {
-        '/report/:reportId': [
-            {
-                method: 'get',
-                handler: reportController.renderReportPage
-            }
-        ]
-    },
-    {
-        '/logout': [
-            {
-                method: 'get',
-                handler: authController.logout
-            }
-        ]
-    },
-    {
-        '/login': [
-            {
-                method: 'get',
-                handler: authController.viewLoginPage,
-                middleWares: [
-                    alreadyLoggedInMiddleWare
-                ]
-            },
-            {
-                method: 'post',
-                handler: authController.postLogin,
-                middleWares: [
-                    alreadyLoggedInMiddleWare
-                ]
-            }
-        ]
-    },
-    {
-        '/forgotpassword': [
-            {
-                method: 'get',
-                handler: authController.viewForgotPasswordPage,
-                middleWares: [
-                    alreadyLoggedInMiddleWare
-                ]
-            },
-            {
-                method: 'post',
-                handler: authController.postForgotPassword,
-                middleWares: [
-                    alreadyLoggedInMiddleWare
-                ]
-            }
-        ]
-    },
-    {
         '/register': [
             {
                 method: 'get',
-                handler: authController.viewRegisterPage,
-                middleWares: [
-                    alreadyLoggedInMiddleWare
-                ]
+                handler: authController.viewRegisterPage
             },
             {
                 method: 'post',
-                handler: authController.postRegister,
-                middleWares: [
-                    alreadyLoggedInMiddleWare
-                ]
+                handler: authController.postRegister
             }
         ]
     },
